@@ -12,15 +12,20 @@ before_build:
 build:
   verbosity: minimal
 after_build:
-- ps: nuget pack EnjoyCQRS.nuspec -Version $env:appveyor_build_version
+- ps: >-
+    nuget pack EnjoyCQRS.nuspec -Version $env:appveyor_build_version
+
+    nuget pack EnjoyCQRS.TestFramework.nuspec -Version $env:appveyor_build_version
 artifacts:
-- path: '*.nupkg'
-  name: nuget-pkg
+- path: EnjoyCQRS.nupkg
+  name: core-nuget-pkg
+- path: EnjoyCQRS.TestFramework.nupkg
+  name: test-nuget-pkg
 deploy:
 - provider: NuGet
   server: https://www.myget.org/F/enjoy/api/v2/package
   api_key:
     secure: zPU3TMfMcbGiOTRpcKdNjztuCMOtjdBB0ReA9tkMCs9XKejC9NKMVvEGvz7HFmEP
-  artifact: nuget-pkg
+  artifact: core-nuget-pkg, test-nuget-pkg
   on:
     branch: dev
