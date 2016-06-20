@@ -1,11 +1,34 @@
-﻿using System;
+﻿// The MIT License (MIT)
+// 
+// Copyright (c) 2016 Nelson Corrêa V. Júnior
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using EnjoyCQRS.Collections;
 using EnjoyCQRS.Events;
 
 namespace EnjoyCQRS.EventSource
 {
-    public abstract class Aggregate
+    public abstract class Aggregate : IAggregate
     {
         private readonly List<IDomainEvent> _uncommitedEvents = new List<IDomainEvent>();
         private readonly Route<IDomainEvent> _routeEvents = new Route<IDomainEvent>();
@@ -27,14 +50,14 @@ namespace EnjoyCQRS.EventSource
         public int Version { get; protected set; }
 
         /// <summary>
-        /// This version is calculated based on Uncommited events.
+        /// This version is calculated based on Version + Uncommited events count.
         /// </summary>
-        public int EventVersion { get; protected set; }
+        public int EventVersion => Version + _uncommitedEvents.Count;
 
         /// <summary>
         /// Aggregate default constructor.
         /// </summary>
-        public Aggregate()
+        protected Aggregate()
         {
             RegisterEvents();
         }
@@ -42,22 +65,6 @@ namespace EnjoyCQRS.EventSource
         /// <summary>
         /// This method is called internaly and you can put all handlers here.
         /// </summary>
-        /// <example>
-        /// Example:
-        /// <code>
-        /// <![CDATA[
-        /// void RegisterEvents() 
-        /// {
-        ///     On<MyEvent>(ApplyMyEvent);
-        /// }
-        /// 
-        /// private void ApplyMyEvent(MyEvent ev)
-        /// {
-        ///     Console.WriteLine(ev);
-        /// }
-        /// ]]>
-        /// </code>
-        /// </example>
         protected abstract void RegisterEvents();
 
         protected void SubscribeTo<T>(Action<T> action)
@@ -66,9 +73,25 @@ namespace EnjoyCQRS.EventSource
             _routeEvents.Add(typeof(T), o => action(o as T));
         }
 
-        protected void Raise(IDomainEvent @event)
+        /// <summary>
+        /// Event emitter.
+        /// </summary>
+        /// <param name="event"></param>
+        protected void Emit(IDomainEvent @event)
         {
-            ApplyEvent(@event, true);
+            ApplyEvent(new UncommitedDomainEvent(@event, EventVersion + 1));
+        }
+
+        /// <summary>
+        /// Apply the event in Aggregate and store the event in Uncommited list.
+        /// The last event applied is the current state of the Aggregate.
+        /// </summary>
+        /// <param name="event"></param>
+        private void ApplyEvent(UncommitedDomainEvent @event)
+        {
+            ApplyEvent(@event.OriginalEvent);
+            
+            _uncommitedEvents.Add(@event.OriginalEvent);
         }
 
         /// <summary>
@@ -76,23 +99,9 @@ namespace EnjoyCQRS.EventSource
         /// The last event applied is the current state of the Aggregate.
         /// </summary>
         /// <param name="event"></param>
-        private void ApplyEvent(IDomainEvent @event, bool isNewEvent)
+        private void ApplyEvent(IDomainEvent @event)
         {
             _routeEvents.Handle(@event);
-
-            if (isNewEvent)
-            {
-                var eventVersion = EventVersion + 1;
-
-                if (@event is DomainEvent)
-                {
-                    ((DomainEvent) @event).Version = eventVersion;
-                }
-
-                _uncommitedEvents.Add(@event);
-
-                EventVersion = eventVersion;
-            }
         }
 
         /// <summary>
@@ -106,17 +115,27 @@ namespace EnjoyCQRS.EventSource
         /// <summary>
         /// Load the events in the Aggregate.
         /// </summary>
-        /// <param name="events"></param>
-        public void LoadFromHistory(IEnumerable<IDomainEvent> events)
+        /// <param name="domainEvents"></param>
+        public void LoadFromHistory(CommitedDomainEventCollection domainEvents)
         {
-            foreach (var @event in events)
+            foreach (var @event in domainEvents)
             {
-                ApplyEvent(@event, false);
+                ApplyEvent(@event);
             }
+            
+            if (domainEvents.Any())
+            {
+                UpdateVersion(domainEvents.Max(e => e.Version));
+            }
+        }
 
-            EventVersion = events.LastOrDefault()?.Version ?? 0;
-
-            Version = EventVersion;
+        /// <summary>
+        /// Update aggregate's version.
+        /// </summary>
+        /// <param name="version"></param>
+        internal void UpdateVersion(int version)
+        {
+            Version = version;
         }
     }
 }

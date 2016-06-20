@@ -11,15 +11,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnjoyCQRS.TestFramework", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnjoyCQRS.UnitTests", "test\EnjoyCQRS.UnitTests\EnjoyCQRS.UnitTests.csproj", "{F7B0A3B8-579B-4FD3-93DC-E2D43555FEF1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Solution Items", "0. Solution Items", "{A356E019-EE54-4167-B6CC-B62511C2E0A2}"
-	ProjectSection(SolutionItems) = preProject
-		appveyor.yml = appveyor.yml
-		EnjoyCQRS.nuspec = EnjoyCQRS.nuspec
-		EnjoyCQRS.TestFramework.nuspec = EnjoyCQRS.TestFramework.nuspec
-		README.md = README.md
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnjoyCQRS", "src\EnjoyCQRS\EnjoyCQRS.csproj", "{7CEDD8F7-210D-44FC-B690-9079AF5A12DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnjoyCQRS.IntegrationTests", "test\EnjoyCQRS.IntegrationTests\EnjoyCQRS.IntegrationTests.csproj", "{857E90AD-43C8-4AEB-9064-5EAA4825F1C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnjoyCQRS.Owin.IntegrationTests", "test\EnjoyCQRS.Owin.IntegrationTests\EnjoyCQRS.Owin.IntegrationTests.csproj", "{FD9D8D17-8826-48C6-B789-11993CFC5838}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +35,14 @@ Global
 		{7CEDD8F7-210D-44FC-B690-9079AF5A12DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CEDD8F7-210D-44FC-B690-9079AF5A12DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CEDD8F7-210D-44FC-B690-9079AF5A12DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{857E90AD-43C8-4AEB-9064-5EAA4825F1C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{857E90AD-43C8-4AEB-9064-5EAA4825F1C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{857E90AD-43C8-4AEB-9064-5EAA4825F1C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{857E90AD-43C8-4AEB-9064-5EAA4825F1C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD9D8D17-8826-48C6-B789-11993CFC5838}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD9D8D17-8826-48C6-B789-11993CFC5838}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD9D8D17-8826-48C6-B789-11993CFC5838}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD9D8D17-8826-48C6-B789-11993CFC5838}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -47,5 +51,7 @@ Global
 		{B1060653-D6FB-4AB1-880F-8E773544EDCE} = {1D765E45-6176-4855-AA97-3CFDD6724043}
 		{F7B0A3B8-579B-4FD3-93DC-E2D43555FEF1} = {BFFED7E8-0A58-46ED-89DE-58D8E350E43D}
 		{7CEDD8F7-210D-44FC-B690-9079AF5A12DF} = {1D765E45-6176-4855-AA97-3CFDD6724043}
+		{857E90AD-43C8-4AEB-9064-5EAA4825F1C0} = {BFFED7E8-0A58-46ED-89DE-58D8E350E43D}
+		{FD9D8D17-8826-48C6-B789-11993CFC5838} = {BFFED7E8-0A58-46ED-89DE-58D8E350E43D}
 	EndGlobalSection
 EndGlobal

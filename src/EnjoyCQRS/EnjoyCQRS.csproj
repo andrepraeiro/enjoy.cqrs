@@ -33,43 +33,60 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bus\Direct\DefaultRouterMessages.cs" />
-    <Compile Include="Bus\Direct\DirectMessageBus.cs" />
-    <Compile Include="Bus\Direct\InMemoryQueue.cs" />
-    <Compile Include="Commands\ICommandDispatcher.cs" />
-    <Compile Include="Events\IEventPublisher.cs" />
-    <Compile Include="Bus\IRouterMessages.cs" />
-    <Compile Include="Bus\Direct\RouteNotRegisteredException.cs" />
-    <Compile Include="Bus\IUnitOfWork.cs" />
+    <Compile Include="EventSource\UnitOfWork.cs" />
+    <Compile Include="Events\UncommitedDomainEvent.cs" />
+    <Compile Include="EventSource\AggregateMetadata.cs" />
+    <Compile Include="Collections\CommitedDomainEventCollection.cs" />
+    <Compile Include="Collections\DomainEventCollection.cs" />
+    <Compile Include="Collections\IDomainEventCollection.cs" />
+    <Compile Include="Collections\UncommitedDomainEventCollection.cs" />
+    <Compile Include="Logger\ILogger.cs" />
+    <Compile Include="Logger\ILoggerFactory.cs" />
+    <Compile Include="Logger\LogLevel.cs" />
+    <Compile Include="Logger\NoopLogger.cs" />
+    <Compile Include="MessageBus\CommandDispatcher.cs" />
+    <Compile Include="MessageBus\InProcess\EventPublisher.cs" />
+    <Compile Include="MessageBus\IEventRouter.cs" />
+    <Compile Include="EventSource\IAggregate.cs" />
+    <Compile Include="EventSource\Snapshots\DefaultSnapshotStrategy.cs" />
+    <Compile Include="EventSource\Snapshots\ISnapshot.cs" />
+    <Compile Include="EventSource\Snapshots\IntervalSnapshotStrategy.cs" />
+    <Compile Include="EventSource\Snapshots\ISnapshotStrategy.cs" />
+    <Compile Include="EventSource\Storage\ISnapshotStore.cs" />
+    <Compile Include="EventSource\Snapshots\Snapshot.cs" />
+    <Compile Include="EventSource\SnapshotAggregate.cs" />
+    <Compile Include="EventSource\Snapshots\ISnapshotAggregate.cs" />
+    <Compile Include="MessageBus\ICommandDispatcher.cs" />
+    <Compile Include="Commands\TransactionalCommandHandler.cs" />
+    <Compile Include="EventSource\Exceptions\AggregateNotFoundException.cs" />
+    <Compile Include="MessageBus\IEventPublisher.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandHandler.cs" />
-    <Compile Include="Commands\TransactionCommandHandler.cs" />
     <Compile Include="EventSource\Aggregate.cs" />
     <Compile Include="EventSource\Exceptions\HandleNotFound.cs" />
-    <Compile Include="EventSource\Exceptions\WrongExpectedVersionException.cs" />
+    <Compile Include="EventSource\Exceptions\ExpectedVersionException.cs" />
     <Compile Include="EventSource\IUnitOfWork.cs" />
     <Compile Include="EventSource\Route.cs" />
     <Compile Include="EventSource\Storage\AggregateTracker.cs" />
-    <Compile Include="EventSource\Storage\IAggregateTracker.cs" />
     <Compile Include="EventSource\Storage\IEventStore.cs" />
     <Compile Include="EventSource\Storage\IRepository.cs" />
     <Compile Include="EventSource\Storage\ISession.cs" />
-    <Compile Include="EventSource\Storage\ITransactional.cs" />
     <Compile Include="EventSource\Storage\Repository.cs" />
     <Compile Include="EventSource\Storage\Session.cs" />
     <Compile Include="Events\DomainEvent.cs" />
     <Compile Include="Events\IDomainEvent.cs" />
     <Compile Include="Events\IEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ValueObjects\ValueObject.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

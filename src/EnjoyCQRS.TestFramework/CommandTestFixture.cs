@@ -1,6 +1,30 @@
-﻿using System;
+﻿// The MIT License (MIT)
+// 
+// Copyright (c) 2016 Nelson Corrêa V. Júnior
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using EnjoyCQRS.Collections;
 using EnjoyCQRS.Commands;
 using EnjoyCQRS.Events;
 using EnjoyCQRS.EventSource;
@@ -33,18 +57,18 @@ namespace EnjoyCQRS.TestFramework
             _mocks = new Dictionary<Type, object>();
             CaughtException = new ThereWasNoExceptionButOneWasExpectedException();
             AggregateRoot = new TAggregateRoot();
-            AggregateRoot.LoadFromHistory(Given());
+            AggregateRoot.LoadFromHistory(new CommitedDomainEventCollection(Given()));
 
-            CommandHandler = BuildCommandHandler();
+            CommandHandler = BuildHandler();
 
             SetupDependencies();
 
             try
             {
-                CommandHandler.Execute(When());
+                CommandHandler.ExecuteAsync(When()).GetAwaiter().GetResult();
                 PublishedEvents = AggregateRoot.UncommitedEvents;
             }
-            catch (Exception exception) when(!(exception is UnregisteredDomainEventException))
+            catch (Exception exception)
             {
                 CaughtException = exception;
             }
@@ -59,7 +83,7 @@ namespace EnjoyCQRS.TestFramework
             return (Mock<TType>)_mocks[typeof(TType)];
         }
 
-        private TCommandHandler BuildCommandHandler()
+        private TCommandHandler BuildHandler()
         {
             var constructorInfo = typeof(TCommandHandler).GetConstructors().First();
 
@@ -68,8 +92,8 @@ namespace EnjoyCQRS.TestFramework
                 if (parameter.ParameterType == typeof(IRepository))
                 {
                     var repositoryMock = new Mock<IRepository>();
-                    repositoryMock.Setup(x => x.GetById<TAggregateRoot>(It.IsAny<Guid>())).Returns(AggregateRoot);
-                    repositoryMock.Setup(x => x.Add(It.IsAny<TAggregateRoot>())).Callback<TAggregateRoot>(x => AggregateRoot = x);
+                    repositoryMock.Setup(x => x.GetByIdAsync<TAggregateRoot>(It.IsAny<Guid>())).Returns(Task.FromResult(AggregateRoot));
+                    repositoryMock.Setup(x => x.AddAsync(It.IsAny<TAggregateRoot>())).Callback<TAggregateRoot>(x => AggregateRoot = x).Returns(Task.CompletedTask);
                     _mocks.Add(parameter.ParameterType, repositoryMock);
                     continue;
                 }
@@ -85,10 +109,6 @@ namespace EnjoyCQRS.TestFramework
             var constructorInfo = typeof(Mock<>).MakeGenericType(type).GetConstructors().First();
             return constructorInfo.Invoke(new object[] { });
         }
-    }
-
-    public class UnregisteredDomainEventException : Exception
-    {
     }
 
     public class ThereWasNoExceptionButOneWasExpectedException : Exception { }
@@ -112,7 +132,11 @@ namespace EnjoyCQRS.TestFramework
 
         public IDomainEvent ToVersion(int version)
         {
-            ((DomainEvent) _domainEvent).Version = version;
+            if (_domainEvent is DomainEvent)
+            {
+                ((DomainEvent) _domainEvent).Version = version;
+            }
+
             return _domainEvent;
         }
     }
